@@ -2,7 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
+from django.conf import settings
 
+from rest_framework.renderers import JSONRenderer
 
 class UserProfileManager(BaseUserManager):
     """Manager for user Profile"""
@@ -32,6 +34,8 @@ class UserProfileManager(BaseUserManager):
         return user
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
+
+    renderer_classes = [JSONRenderer]
     """Database model for users in the system"""
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
@@ -54,3 +58,17 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         """Return string representation of user"""
         return self.email
+
+
+class ProfileFeedItem(models.Model):
+    user_profile= models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE
+    )
+    status_text= models.CharField(max_length=255)
+    created_on= models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return self.status_text
+    
